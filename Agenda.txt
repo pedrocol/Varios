@@ -1,2 +1,39 @@
 1-Dec-2016
+The whole point of this first step is to be able to write an explanation of what are we going to do?
+
+Denmark Strait Overflow
+
+- Search information on finite difference method, advection equation (Short and fast introduction to modeling. Interest and definition. Space and time discretizations. Model of the advection equation.)
+- Dickson and Brown: Bottom flow water, 27.8 isopycnal, observations
+- Girton 2003: Hydrographic sections
+- Hoyer 2001: Overflow from the space
+
+We will have to answer some questions:
+1) What is an overflow?
+2) Where can we found them?
+3) Why are they important?
+ 
+Deadline 6-Jan
+1. Context, social and scientific issues: 1 week
+2. State of the	art: 2 weeks
+3. Objectives of the project: #Pedro 1 week	
+4. Scientific program #Pedro same week as #3
+ - Task	description	(Methods and tools)	
+ - Outcomes	
+ - Risk and solutions
+5. Tasks schedule, deliverables	
+ - Planning, including the main	meetings with your supervisors
+ - Deliverables	
+a) References
+
+14-Dec-2016
+
+Answer to questions:
+ - Legg 2009: Where can we found them
+ - Questions 1 and 3, to be checked
+
+1. Importance of overflow in climate and modeling
+
+2. State of the art: Summary of the observations
+
 
