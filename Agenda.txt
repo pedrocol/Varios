@@ -32,6 +32,8 @@ Answer to questions:
  - Legg 2009: Where can we found them
  - Questions 1 and 3, to be checked
 
+Focus on writing the report:
+
 1. Importance of overflow in climate and modeling
 
 2. State of the art: Summary of the observations
