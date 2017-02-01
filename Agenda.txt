@@ -1,4 +1,4 @@
-1-Dec-2016
+###1-Dec-2016
 The whole point of this first step is to be able to write an explanation of what are we going to do?
 
 Denmark Strait Overflow
@@ -38,4 +38,12 @@ Focus on writing the report:
 
 2. State of the art: Summary of the observations
 
-
+###1-Feb-2017
+We have seen the basics of the advection equation and finite differences
+We have coded a first approach for the advection equation
+We now need to answer a few questions
+a) What is the advection equation? Which phenomena it is represented?
+b) What is finite differences? are there any other method? why we use it?
+Understanding of the code: 
+c) What is a loop? why we use it?
+d) What is C? What happens when we change C?
