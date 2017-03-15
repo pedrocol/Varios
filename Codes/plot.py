@@ -31,6 +31,33 @@ if labo == "no":
    import cartopy.feature as cfeature
 
 
+def import_data3d(ncfile=None,var=None):
+    fh = Dataset(ncfile, mode='r')
+    #Get data
+    data = fh.variables[str(var)][0,:,:,:]
+    fh.close() #Close file
+    return data
+
+def import_grid_z(ncfile=None):
+    fh = Dataset(ncfile, mode='r')
+    #Get data
+    grid = {}
+    grid['mbathy' ] = fh.variables['mbathy' ][0,:,:]
+    grid['e3t_0'    ] = fh.variables['e3t_0'    ][0,:,:,:]
+    grid['gdept_0'  ] = fh.variables['gdept_0'  ][0,:,:,:]
+    grid['nav_lon'] = fh.variables['nav_lon'][:,:]
+    grid['nav_lat'] = fh.variables['nav_lat'][:,:]
+    fh.close() #Close file
+    return grid
+
+def import_dim(ncfile=None,variable=None,T=None):
+    fh = Dataset(ncfile, mode='r')
+    #Get data
+    data = fh.variables[str(variable)][:]
+    fh.close() #Close file
+    return data
+
+
 def plot_contour_data_sections(conf=None,experiment=None,section=None,year=None,variable=None,tracer=1, \
                                contour=None,x_1=None,x_2=None,y_1=None,y_2=None):
     """It makes a contour plot along 4 given points 
