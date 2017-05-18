@@ -38,6 +38,13 @@ def import_data3d(ncfile=None,var=None):
     fh.close() #Close file
     return data
 
+def import_data2d(ncfile=None,variable=None):
+    fh = Dataset(ncfile, mode='r')
+    #Get data
+    data = fh.variables[str(variable)][0,:,:]
+    fh.close() #Close file
+    return data
+
 def import_grid_z(ncfile=None):
     fh = Dataset(ncfile, mode='r')
     #Get data
@@ -270,49 +277,40 @@ def import_grid_z(ncfile=None):
     fh.close() #Close file
     return grid
 
-def plot_contour_data_sections(conf=None,experiment=None,section=None,year=None,variable=None,tracer=1, \
-                               contour=None,x_1=None,x_2=None,y_1=None,y_2=None):
+def plot_contour_data_sections(conf=None,experiment=None,x_1=None,x_2=None,y_1=None,y_2=None,date="y0076m01d01"):
     """It makes a contour plot along 4 given points 
     """
     fs = 10
-    root_gen   = "/media/extra/Analysis/experiment_"+str(experiment)+"/average/"
-    root_dens   = "/media/extra/Analysis/experiment_"+str(experiment)+"/cdfsig0_region/"
-    ncfile_grid ="/media/extra/GRIDS/DENST12-I/DENST12_mesh_zgr.nc"
-    if variable == 'vozocrtx': grid='gridU'
-    if variable == 'vomecrty': grid='gridV'
-    if variable == 'votemper': grid='gridT'
-    if variable == 'vosaline': grid='gridT'
-    if variable == 'votkeavt': grid='gridW'
-    if variable == 'vovecrtz': grid='gridW'
-    if variable == 'tracer'  : grid='ptrcT'
-    ncfile = root_gen+"/"+str(conf)+"/"+str(year)+ \
-             "/ave_"+str(conf)+"_y00"+str(year)+"_"+str(grid)+".nc"
-    ncfile_ptrc = root_gen+"/"+str(conf)+"/"+str(year)+ \
-             "/ave_"+str(conf)+"_y00"+str(year)+"_ptrcT.nc"
-    ncfile_dens = root_dens+"/"+str(conf)+"/"+str(year)+ \
-                              "/ave_"+str(conf)+"_y00"+str(year)+".nc"
+    ncfile_grid ="/media/extra/GRIDS/GENERAL/mesh_zgr_"+str(conf)+".nc"
+    root_dens   = "/media/extra/DATA/"+str(conf)+"/Dens/"
+    ncfile_dens = root_dens+"/"+str(date)+".nc"
+    root_temp   = "/media/extra/DATA/"+str(conf)+"/Temp/"
+    ncfile_temp = root_temp+"/"+str(conf)+"_"+str(date)+".1d_gridT.nc"
+    root_vel   = "/media/extra/DATA/"+str(conf)+"/Vel/"
     if x_1 == None:
        x_1,x_2,y_1,y_2 = plot_sigma.data_sections()
        x_1,x_2,y_1,y_2 = x_1[section],x_2[section],y_1[section],y_2[section]
     xxx = [np.linspace(x_1,x_2,x_2-x_1+1)]
     yyy = [np.linspace(y_1,y_2,y_2-y_1+1)]
-    #Get data
-    data_plot = import_data3d(ncfile,variable)[:,yyy,xxx][:,0,:]
-    if contour == "dens": data_contour = import_data3d(ncfile_dens,'vosigma0')[:,yyy,xxx][:,0,:]
-    if contour == "ptrc": data_contour = import_data3d(ncfile_ptrc,'tracer_'+str(tracer))[:,yyy,xxx][:,0,:]
-    #bathy = import_bathy("/scratch/cnt0024/hmg2840/colombo/DENST12/DENST12-I-sco/bathymetry_DENST12_V3.3.nc")
     #Get grid and data to plot
     grid = import_grid_z(ncfile_grid)
     #Find indexes
     lat,lon=grid['nav_lat'][yyy,xxx][0,:],grid['nav_lon'][yyy,xxx][0,:]
     dimx,dimy = lon.shape,lat.shape
-    #Build grid
     if x_1 == x_2:   #Meridional
        xx = lat
        xlabel = "Latitude"
+       variable = "vozocrtx"
+       ncfile_vel = root_vel+"/"+str(conf)+"_"+str(date)+".1d_gridU.nc"
     elif y_1 == y_2: #Zonal
        xx = lon
        xlabel = "Longitude"
+       variable = "vomecrty"
+       ncfile_vel = root_vel+"/"+str(conf)+"_"+str(date)+".1d_gridV.nc"
+    #Get data
+    data_plot = import_data3d(ncfile_vel,variable)[:,yyy,xxx][:,0,:]
+    data_contour_ssh  = import_data2d(ncfile_temp,'sossheig')[yyy,xxx][0]
+    data_contour_dens = import_data3d(ncfile_dens,'vosigma0')[:,yyy,xxx][:,0,:]
     ##s way
     #yy = grid['gdept_0'][:,yyy,xxx][:,0,:] #Vertical part of the grid is given by the coordinate
     #z_levels = yy.shape[0]
@@ -330,23 +328,22 @@ def plot_contour_data_sections(conf=None,experiment=None,section=None,year=None,
     masked_data_vel = np.ma.getmask(data_plot)
     zz = data_plot
     #Plot setup
-    vmin = zz.min()
-    vmax = zz.max()
+    vmin = -0.4
+    vmax = 0.3
     nb_contours = 50.
     norm = mpl.colors.Normalize(vmin=vmin, vmax=vmax)
     contourstep = (vmax-vmin)/nb_contours
     contours = np.arange(vmin,vmax+contourstep,contourstep)
     my_cmap = cm.jet_r
     #Plot routine
-    plt.figure()
+    plt.figure(figsize=(10,7))
     ax = plt.gca()
-    #contf_masked_vel = plt.contourf(xi,yy,masked_data_vel,colors='gray')
+    contf_masked_vel = plt.contourf(XX,yy,zz.mask,colors='gray')
     CS = plt.contourf(XX,yy,zz,contours,cmap = my_cmap,norm=norm,\
                       vmin=vmin,vmax=vmax,extend="both",corner_mask=False)
     cbar=plt.colorbar(CS,format='%1.2g')
-    if contour == "dens": cont_sigma = plt.contour(xi,yy,data_contour,(27.60,27.80,27.85),colors=('r','k','g'))
-    if contour == "ptrc": cont_sigma = plt.contour(xi,yy,data_contour,(0.2,0.3,0.4))#,colors=('r','k','g'))
-    if contour != "none": dens_labels      = plt.clabel(cont_sigma,inline=1,fontsize=fs,fmt='%1.4g')
+    contour = plt.contour(XX,yy,data_contour_dens,(27.80,27.85),colors=('k','g'))
+    contour = plt.plot(xx,data_contour_ssh*1000-1000)
     #plt.plot(xx,bathy,color='r',lw=3.)
     #Plot grid
     plot_grid = "no"
@@ -360,12 +357,19 @@ def plot_contour_data_sections(conf=None,experiment=None,section=None,year=None,
             plt.plot([xx[cont_x],xx[cont_x]],[yy[0,cont_x],yy[z_levels-2,cont_x]],color='#808080')
             cont_x += 1
     #Plot functions
-    plt.title(str(conf))
+    plt.title(str(conf)+" - "+str(date))
     plt.xlabel(xlabel)
     plt.ylabel("Depth")
     #plt.gca().invert_yaxis()
     plt.autoscale(True,'x',True)
-    plt.ylim(ymax=0,ymin=2500)
+    plt.ylim(ymax=-100,ymin=700)
     #plt.autoscale(True,'y',True)
-    plt.show(block=False)
+    plt.savefig("/media/extra/DATA/"+str(conf)+"/Plots/sill_"+str(conf)+"_"+str(date)+".png")
+    plt.close()
+    #plt.show(block=False)
 
+for day in range(1,30):
+    day = str(day).zfill(2)
+    date = "y0076m01d"+str(day)
+    print(date)
+    plot_contour_data_sections(conf="DENST12-MPC013",experiment=None,x_1=140,x_2=210,y_1=116,y_2=116,date=date)
